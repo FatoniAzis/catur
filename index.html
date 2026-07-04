@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catur</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Audio Efek Suara Latar Belakang -->
+    <audio id="bg-audio" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <input type="hidden" id="hidden-mode-pilihan" value="pvp">
+
+    <!-- LAYER UI 1: MAIN MENU -->
+    <main id="main-menu" class="ui-layer">
+        <header class="top-bar">
+            <div class="profile-pic" id="profile-elo">🏆 ELO: 1500</div>
+            <div class="settings-ribbon" title="Mode Latihan Turnamen Aktif"></div>
+        </header>
+        
+        <section class="logo-area">
+            <div class="chess-logo">
+                <span class="logo-hitam">♛</span>
+                <span class="logo-emas">♕</span>
+            </div>
+            <h3>ARENA</h3>
+            <p class="subtitle">Edisi Standar Grandmaster Latihan</p>
+        </section>
+
+        <nav class="menu-buttons">
+            <button class="menu-btn btn-green" onclick="bukaModalGame('ai')">
+                <span class="icon-box">🤖</span>
+                <span class="btn-text">MAIN VS MESIN AI</span>
+            </button>
+            <button class="menu-btn btn-blue" onclick="bukaModalGame('pvp')">
+                <span class="icon-box">👥</span>
+                <span class="btn-text">2 PEMAIN (LOKAL)</span>
+            </button>
+            <button class="menu-btn btn-blue" onclick="bukaModalGame('puzzle')">
+                <span class="icon-box">🧩</span>
+                <span class="btn-text">TEKA-TEKI TAKTIS (FIDE)</span>
+            </button>
+        </nav>
+    </main>
+
+    <!-- LAYER UI 2: MODAL KONFIGURASI MATCH -->
+    <div id="ai-setup-modal" class="modal-backdrop">
+        <div class="setup-box">
+            <h2 id="modal-title">⚙️ PENGATURAN LAGA</h2>
+            
+            <div id="section-ai-difficulty" class="setup-group">
+                <label for="modal-ai-level">Tingkat Kesulitan AI:</label>
+                <select id="modal-ai-level">
+                    <option value="ai-mudah">Level Mudah (Acak)</option>
+                    <option value="ai-sedang">Level Sedang (Depth 2)</option>
+                    <option value="ai-normal" selected>Level Susah (Normal PST)</option>
+                    <option value="ai-ekstra">Level Ekstra (Depth 5)</option>
+                    <option value="ai-aggressive">Level Susah (Agresif Serang)</option>
+                    <option value="ai-defensive">Level Susah (Defensif Solid)</option>
+                </select>
+            </div>
+
+            <div id="section-time-control" class="setup-group">
+                <label for="modal-time-control">Kontrol Waktu Laga:</label>
+                <select id="modal-time-control">
+                    <option value="unlimited" selected>Tanpa Waktu (Santai)</option>
+                    <option value="bullet-1">Bullet (1 Menit)</option>
+                    <option value="blitz-3">Blitz (3 Menit)</option>
+                    <option value="blitz-5">Blitz (5 Menit)</option>
+                    <option value="rapid-10">Rapid (10 Menit)</option>
+                </select>
+            </div>
+
+            <div class="setup-group">
+                <label for="modal-theme-selection">Tema Papan Visual:</label>
+                <select id="modal-theme-selection" onchange="gantiTemaVisual(this.value)">
+                    <option value="cyberpunk" selected>Cyberpunk Neon (Default)</option>
+                    <option value="walnut">Walnut Tournament (Kayu)</option>
+                    <option value="slate">Slate Minimalist (Teduh)</option>
+                </select>
+            </div>
+
+            <div id="section-color-selection" class="setup-group">
+                <label>Pilih Warna Bidakmu:</label>
+                <div class="color-selector-wrapper">
+                    <button class="color-btn" id="btn-color-putih" onclick="setPilihanWarna('putih')">♙</button>
+                    <button class="color-btn" id="btn-color-hitam" onclick="setPilihanWarna('hitam')">♟</button>
+                    <button class="color-btn active-color" id="btn-color-acak" onclick="setPilihanWarna('acak')">🎲</button>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="tutupModalGame()">Batal</button>
+                <button class="btn-confirm" onclick="konfirmasiMulaiGame()">🔥 Mulai Laga</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LAYER UI 3: GAMEPLAY ARENA -->
+    <div id="game-ui" class="ui-layer">
+        <header class="game-header">
+            <button id="btn-kembali-menu" onclick="kembaliKeMenu()">⬅️ MENU</button>
+            <button id="btn-musik-game" onclick="toggleMusik()">🎵 MUSIK: OFF</button>
+        </header>
+
+        <div id="top-wrapper">
+            <div id="aksi-panel" class="control-panel">
+                <button class="btn-netral" onclick="resetGame()">🔄 Ulangi</button>
+                <button id="btn-undo-move" class="btn-undo" onclick="undoMove()">↩️ Undo</button>
+                <button id="btn-remis-game" class="btn-netral" onclick="tawarkanRemis()">🤝 Remis</button>
+                <button id="btn-menyerah-game" class="btn-bahaya" onclick="menyerah()">🏳️ Menyerah</button>
+            </div>
+
+            <div id="replay-panel" class="control-panel">
+                <button class="btn-replay" onclick="replayKeAwal()">⏮️</button>
+                <button class="btn-replay" onclick="replayMundur()">◀️</button>
+                <button class="btn-replay" onclick="replayMaju()">▶️</button>
+                <button class="btn-replay" onclick="replayKeAkhir()">⏭️</button>
+                <button class="btn-bahaya" onclick="keluarReplay()">❌ Keluar Replay</button>
+            </div>
+        </div>
+
+        <div id="clock-wrapper">
+            <div id="timer-putih" class="timer-box">PUTIH: --:--</div>
+            <div id="timer-hitam" class="timer-box">HITAM: --:--</div>
+        </div>
+
+        <div id="status-bar-wrapper">
+            <div id="status-bar">GILIRAN: PUTIH</div>
+            <div id="opening-bar">Teori Pembukaan: Jalur Utama Standard</div>
+        </div>
+
+        <main id="area-bermain">
+            <div id="eval-wrapper">
+                <div id="eval-value">0.0</div>
+                <div id="eval-bar"></div>
+            </div>
+
+            <div class="chessboard-outer-frame">
+                <div id="papan-catur">
+                    <div id="promo-modal">
+                        <div class="promo-container" id="promo-options"></div>
+                    </div>
+                    
+                    <div id="analisis-modal">
+                        <div class="analisis-box">
+                            <h2>📊 Analisis Pertandingan</h2>
+                            <div class="stats-container">
+                                <div class="stat-col">
+                                    <h3 class="side-white">Putih</h3>
+                                    <div class="acc-text"><span id="acc-putih">0</span>%</div>
+                                    <div class="stat-item"><span>Brilliant (!!)</span> <span id="brilliant-putih" class="badge-move badge-brilliant">0</span></div>
+                                    <div class="stat-item"><span>Bagus (!)</span> <span id="bagus-putih" class="badge-move badge-bagus">0</span></div>
+                                    <div class="stat-item"><span>Blunder (??)</span> <span id="blunder-putih" class="badge-move badge-blunder">0</span></div>
+                                </div>
+                                <div class="stat-col">
+                                    <h3 class="side-black">Hitam</h3>
+                                    <div class="acc-text"><span id="acc-hitam">0</span>%</div>
+                                    <div class="stat-item"><span>Brilliant (!!)</span> <span id="brilliant-hitam" class="badge-move badge-brilliant">0</span></div>
+                                    <div class="stat-item"><span>Bagus (!)</span> <span id="bagus-hitam" class="badge-move badge-bagus">0</span></div>
+                                    <div class="stat-item"><span>Blunder (??)</span> <span id="blunder-hitam" class="badge-move badge-blunder">0</span></div>
+                                </div>
+                            </div>
+                            <div class="analisis-actions">
+                                <button class="btn-tutup" onclick="tutupAnalisis()">Tutup Saja</button>
+                                <button id="btn-replay-opsi" class="btn-replay" onclick="mulaiReplay()">🔄 Putar Ulang</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <aside id="riwayat-panel">
+                <div id="riwayat-header">🗒️ RIWAYAT LANGKAH</div>
+                <ul id="daftar-riwayat"></ul>
+            </aside>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
