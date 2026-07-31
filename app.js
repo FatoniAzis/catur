@@ -1,7 +1,7 @@
 /**
- * =========================================================================
- * CORE ENGINE MODULE - CATUR PRO ARENA MASTER V3 (DEVELOPED)
- * =========================================================================
+ * =========================================================
+ * CORE ENGINE MODULE - CATUR PRO ARENA MASTER V3 (FIXED)
+ * =========================================================
  */
 
 // REGISTRASI STATE GLOBAL SINKRONISASI GAME
@@ -54,7 +54,7 @@ const analisisModal = document.getElementById("analisis-modal");
 const daftarRiwayat = document.getElementById("daftar-riwayat");
 const hiddenModeInput = document.getElementById('hidden-mode-pilihan');
 
-// DATA REPOSITORI STRATEGIS: TURNAMEN PUZZLES FIDE (DIPERKAYA)
+// DATA REPOSITORI STRATEGIS: TURNAMEN PUZZLES FIDE
 const daftarPuzzle = [
     {
         nama: "Taktik 1: Back-Rank Mate (Putih Melangkah)",
@@ -109,7 +109,7 @@ const daftarPuzzle = [
 ];
 let indeksPuzzleAktif = 0;
 
-// TEORI PEMBUKAAN DATABASE RESMI (DIPERKAYA)
+// TEORI PEMBUKAAN DATABASE RESMI
 const databaseTeoriOpening = {
     "e2e4": "King's Pawn Opening (Pembukaan Pion Raja)",
     "e2e4,c7c5": "Pertahanan Sisilia (Sicilian Defense) - Tajam & Agresif",
@@ -183,7 +183,7 @@ const susunanAwal = [
     ['','','','','','','',''], ['','','','','','','',''], ['♙','♙','♙','♙','♙','♙','♙','♙'], ['♖','♘','♗','♕','♔','♗','♘','♖']
 ];
 
-// --- FUNGSI BANTU ENGINE (ARRAY-BASED) ---
+// --- FUNGSI BANTU ENGINE ---
 function isWhite(p){ return ['♙','♖','♘','♗','♕','♔'].includes(p); }
 function isBlack(p){ return ['♟','♜','♞','♝','♛','♚'].includes(p); }
 
@@ -277,7 +277,7 @@ function getValidMovesVB(board, color, curEP, hakRokadeParam) {
     return moves.sort((a, b) => (b.captured !== '' ? Math.abs(PIECE_VALUES[b.captured]) : 0) - (a.captured !== '' ? Math.abs(PIECE_VALUES[a.captured]) : 0)); 
 }
 
-// --- EVALUASI STATIS DENGAN PST (ARRAY-BASED) ---
+// --- EVALUASI STATIS DENGAN PST ---
 function evaluateVB(board) { 
     let score = 0; 
     const modeVal = hiddenModeInput.value;
@@ -303,13 +303,12 @@ function evaluateVB(board) {
                 let val = PIECE_VALUES[p]; 
                 const isW = isWhite(p); 
                 
-                // Kalibrasi Mode Agresif / Defensif
                 if (pMode === "aggressive" && (p === '♕' || p === '♛')) val *= 1.2; 
                 else if (pMode === "defensive" && (p === '♙' || p === '♟')) val *= 1.25; 
                 score += val; 
 
-                // Evaluasi berbasis Posisi (PST)
-                let table = PST_BIDAK; let rIdx = isW ? (7 - r) : r; 
+                let table = PST_BIDAK; 
+                let rIdx = isW ? r : (7 - r); 
                 if (p === '♙' || p === '♟') table = PST_BIDAK;
                 else if (p === '♘' || p === '♞') table = PST_KUDA;
                 else if (p === '♗' || p === '♝') table = PST_GAJAH;
@@ -319,8 +318,6 @@ function evaluateVB(board) {
                 
                 score += isW ? table[rIdx][c] : -table[rIdx][c];
                 
-                // Tambahan Fitur: Bonus Skor Mobilitas Ruang (Space Control)
-                // Memberikan poin ekstra jika bidak memiliki ruang gerak aktif
                 if (isW) mobilitasPutih += 0.5; else mobilitasHitam += 0.5;
             } 
         } 
@@ -328,7 +325,7 @@ function evaluateVB(board) {
     return score + (mobilitasPutih - mobilitasHitam); 
 }
 
-// --- MINIMAX ENGINE DENGAN ALPHA-BETA (ARRAY-BASED) ---
+// --- MINIMAX ENGINE DENGAN ALPHA-BETA ---
 function minimax(board, depth, alpha, beta, isMaximizing, currentEP, hakRokadeParam) {
     if (depth === 0) return evaluateVB(board); 
     const color = isMaximizing ? 'putih' : 'hitam'; 
@@ -471,13 +468,12 @@ function getBestMove(board, color, depth) {
     return bestMove;
 }
 
-// --- FUNGSI LAINNYA (TIDAK DIUBAH SIGNIFIKAN) ---
 function getNotasi(r, c) { return `${String.fromCharCode(97 + c)}${8 - r}`; }
 
 // SYSTEM UI VIEW INTERFACES CONTROL
 function gantiTemaVisual(tema) {
     const root = document.documentElement;
-    document.body.className = ''; // Bersihkan tema lama
+    document.body.className = '';
     document.body.classList.add(`${tema}-theme`);
     
     if (tema === 'cyberpunk') {
@@ -674,7 +670,7 @@ function updateEvalBar() {
     }
 }
 
-// --- FUNGSI LEGACY (DOM-BASED) UNTUK KOMPATIBILITAS UI ---
+// FUNGSI LEGACY UNTUK KOMPATIBILITAS UI
 function isPathClear(r1,c1,r2,c2){ const stepR = Math.sign(r2-r1); const stepC = Math.sign(c2-c1); let r = r1 + stepR; let c = c1 + stepC; while(r !== r2 || c !== c2){ if(document.querySelector(`[data-r="${r}"][data-c="${c}"]`).querySelector('.bidak-text')) return false; r += stepR; c += stepC; } return true; }
 
 function validMove(from,to){ 
@@ -755,8 +751,6 @@ function simpanKeMemoriWaktu() {
     };
     
     historyStack.push(JSON.parse(JSON.stringify(gameState))); 
-    
-    // Simpan cadangan ke localStorage agar aman dari accident-refresh
     localStorage.setItem('catur_pro_active_match', JSON.stringify(gameState));
 }
 
@@ -785,7 +779,7 @@ function undoMove() {
     if (selected) selected.classList.remove("terpilih"); selected = null; hapusLangkahValid();
     document.querySelectorAll('.bekas-langkah').forEach(e => e.classList.remove('bekas-langkah'));
     gameOver = false; isAITurn = false; isPromoting = false; promoModal.style.display = "none"; analisisModal.style.display = "none";
-    document.getElementById('papan-catur').classList.remove('shake-board');
+    document.querySelector('.chessboard-outer-frame')?.classList.remove('shake-board');
     updateHighlightCheck(giliran, isKingInCheck(giliran)); updateStyleStatusBarNormal(); updateEvalBar(); updateDisplayJamCatur();
 }
 
@@ -859,10 +853,12 @@ function eksekusiLangkah(from, to) {
     let isEP = (bidakBergerak === '♙' || bidakBergerak === '♟') && Math.abs(cAsal - targetCol) === 1 && !to.querySelector('.bidak-text');
     let isCapture = to.querySelector('.bidak-text') !== null || isEP; 
     if (isEP) { const epBdk = document.querySelector(`[data-r="${rAsal}"][data-c="${targetCol}"] .bidak-text`); if(epBdk) epBdk.remove(); }
-    let isCastling = false; 
+    
+    let isCastling = (bidakBergerak === '♔' || bidakBergerak === '♚') && Math.abs(targetCol - cAsal) === 2; 
     if(bidakBergerak === '♔') { hakRokade.putihRaja = false; hakRokade.putihRatu = false; } if(bidakBergerak === '♚') { hakRokade.hitamRaja = false; hakRokade.hitamRatu = false; }
     if (rAsal === 7 && cAsal === 7) hakRokade.putihRaja = false; if (rAsal === 7 && cAsal === 0) hakRokade.putihRatu = false;
     if (rAsal === 0 && cAsal === 7) hakRokade.hitamRaja = false; if (rAsal === 0 && cAsal === 0) hakRokade.hitamRatu = false;
+    
     catatRiwayat(bidakBergerak, rAsal, cAsal, targetRow, targetCol, isCapture, isCastling); 
     
     if (hiddenModeInput.value === 'puzzle') {
@@ -874,7 +870,7 @@ function eksekusiLangkah(from, to) {
     }
     epTarget = (bidakBergerak === '♙' && rAsal === 6 && targetRow === 4) ? {r: 5, c: cAsal} : (bidakBergerak === '♟' && rAsal === 1 && targetRow === 3) ? {r: 2, c: cAsal} : null;
     gameMoveSequence.push(getNotasi(rAsal, cAsal) + getNotasi(targetRow, targetCol));
-    if ((bidakBergerak === '♔' || bidakBergerak === '♚') && Math.abs(targetCol - cAsal) === 2) { isCastling = true; const isKingside = targetCol > cAsal; const rR = targetRow; const rookFromSq = document.querySelector(`[data-r="${rR}"][data-c="${isKingside ? 7 : 0}"]`); const rookToSq = document.querySelector(`[data-r="${rR}"][data-c="${isKingside ? 5 : 3}"]`); animasiGerak(rookFromSq, rookToSq, rookFromSq.querySelector('.bidak-text').innerText, false, null); } 
+    if (isCastling) { const isKingside = targetCol > cAsal; const rR = targetRow; const rookFromSq = document.querySelector(`[data-r="${rR}"][data-c="${isKingside ? 7 : 0}"]`); const rookToSq = document.querySelector(`[data-r="${rR}"][data-c="${isKingside ? 5 : 3}"]`); animasiGerak(rookFromSq, rookToSq, rookFromSq.querySelector('.bidak-text').innerText, false, null); } 
     animasiGerak(from, to, bidakBergerak, isCapture, () => { 
         if (lastMoveFromSq) lastMoveFromSq.classList.remove('bekas-langkah'); if (lastMoveToSq) lastMoveToSq.classList.remove('bekas-langkah');
         from.classList.add('bekas-langkah'); to.classList.add('bekas-langkah'); lastMoveFromSq = from; lastMoveToSq = to;
@@ -913,7 +909,12 @@ function selesaikanGiliran() {
     updateEvalBar(); updateDisplayJamCatur();
     if (!canMove) { 
         gameOver = true; clearInterval(timerInterval);
-        if (inCheck) { document.getElementById('papan-catur').classList.add('shake-board'); statusBar.innerHTML = `🔥 SKAKMAT! ${pBaruJalan.toUpperCase()} MENANG! 🔥`; if (hiddenModeInput.value.startsWith('ai')) hitungPerubahanElo(playerColor === pBaruJalan); } 
+        if (inCheck) { 
+            // PERBAIKAN: Menambahkan animasi getar ke outer frame agar rotasi papan Hitam tidak terganggu
+            document.querySelector('.chessboard-outer-frame')?.classList.add('shake-board'); 
+            statusBar.innerHTML = `🔥 SKAKMAT! ${pBaruJalan.toUpperCase()} MENANG! 🔥`; 
+            if (hiddenModeInput.value.startsWith('ai')) hitungPerubahanElo(playerColor === pBaruJalan); 
+        } 
         else eksekusiRemis("STALEMATE / PAT"); setTimeout(tampilkanAnalisis, 2000); 
     } else { 
         if (inCheck) statusBar.innerText = `⚠️ SKAK! GILIRAN: ${giliran.toUpperCase()}`; else updateStyleStatusBarNormal(); 
@@ -941,7 +942,8 @@ function resetGame() {
     promoModal.style.display = "none"; analisisModal.style.display = "none"; lastMoveFromSq = null; lastMoveToSq = null;
     daftarRiwayat.innerHTML = ''; nomorLangkah = 1; hakRokade = { putihRaja: true, putihRatu: true, hitamRaja: true, hitamRatu: true };
     riwayatPosisi = {}; historyStack = []; gameMoveSequence = []; epTarget = null;
-    document.getElementById('papan-catur').classList.remove('shake-board'); document.getElementById('replay-panel').style.display = 'none'; 
+    document.querySelector('.chessboard-outer-frame')?.classList.remove('shake-board'); 
+    document.getElementById('replay-panel').style.display = 'none'; 
     
     let modeBermain = hiddenModeInput.value;
     let isPuzzle = modeBermain === 'puzzle';
